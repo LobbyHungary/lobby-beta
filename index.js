@@ -1,19 +1,22 @@
-const { Client, GatewayIntentBits, Collection } = require('discord.js');
+const { Collection } = require('@discordjs/collection')
+const { Client } = require('discord.js')
 const keepAlive = require('./server')
-require('dotenv').config()
 const fs = require('fs')
+require('dotenv').config()
+
+// Discord Bot @ Client
 
 const client = new Client({
     intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.GuildVoiceStates,
-        GatewayIntentBits.DirectMessageReactions
+        "GUILDS",
+        "GUILD_MEMBERS",
+        "GUILD_MESSAGES",
+        "GUILD_VOICE_STATES",
+        "DIRECT_MESSAGE_REACTIONS"
     ]
-});
+})
 
-// Command Handler - ./commands/folder/file - v14
+// Discord Bot @ Command Handler => Self Explanatory
 
 const commandFolders = fs.readdirSync(`./commands`)
 const commands = []
@@ -31,7 +34,7 @@ for (const folder of commandFolders) {
     }
 }
 
-// Event Handler - ./events/folder/file - v14
+// Discord Bot @ Event Handler => Event: client.on("ready"), etc
 
 const eventFolders = fs.readdirSync(`./events`)
 
@@ -50,7 +53,22 @@ for (const folder of eventFolders) {
     }
 }
 
-// Client Login
+// Discord Bot @ Rest Handler => Rest: discord-temp-channel, etc.
 
-client.login(process.env.LOBBY_SECRET);
-keepAlive();
+const restFolders = fs.readdirSync(`./rests`)
+
+for (const folder of restFolders) {
+    const restFiles = fs
+        .readdirSync(`./rests/${folder}`)
+        .filter((file) => file.endsWith('.js'))
+    for (const file of restFiles) {
+        const restAsset = require(`./rests/${folder}/${file}`)
+
+        restAsset.execute(client)
+    }
+}
+
+// Discord Bot @ Login
+
+client.login(process.env.LH_SECRET)
+keepAlive()
